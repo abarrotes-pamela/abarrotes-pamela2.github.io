@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Abarrotes Pamela</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ff9a00, #ff577f);
+      color: #333;
+    }
+    header {
+      background: #fff;
+      color: #ff577f;
+      padding: 1em;
+      text-align: center;
+      font-size: 1.8em;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .main-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2em;
+      padding: 2em;
+    }
+    section.products {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 1.5em;
+      max-width: 400px;
+    }
+    .product {
+      background: #fdfdfd;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .product img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .product h3 {
+      color: #ff577f;
+      margin: 0.5em 0;
+    }
+    .product button {
+      margin-top: 0.5em;
+      padding: 0.5em;
+      width: 100%;
+      background: #ff577f;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .product button:hover {
+      background-color: #e0446b;
+    }
+    #cart-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fff;
+      border: 2px solid #ff577f;
+      color: #ff577f;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+    #cart-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 300px;
+      height: 100%;
+      background: #fff;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+      padding: 1em;
+      transition: right 0.3s ease-in-out;
+      z-index: 998;
+    }
+    #cart-panel.open {
+      right: 0;
+    }
+    #cart-panel h2 {
+      color: #ff577f;
+      margin-top: 0;
+    }
+    #cart-items li {
+      margin-bottom: 0.5em;
+    }
+    .payment {
+      margin-top: 1em;
+    }
+    .payment select,
+    .payment button {
+      width: 100%;
+      padding: 0.6em;
+      margin-top: 0.5em;
+      border-radius: 5px;
+    }
+    .payment button {
+      background: #ff9a00;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    .payment button:hover {
+      background: #e18700;
+    }
+    @keyframes pulseCart {
+      0% { transform: scale(1); background-color: #fff; }
+      50% { transform: scale(1.05); background-color: #ffe0e8; }
+      100% { transform: scale(1); background-color: #fff; }
+    }
+    .cart-animation {
+      animation: pulseCart 0.4s ease-in-out;
+    }
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.1); background-color: #ffe0e0; }
+      100% { transform: scale(1); }
+    }
+    .added-animation {
+      animation: bounce 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+<header>Abarrotes Pamela</header>
+
+<div id="cart-button" onclick="toggleCartPanel()">🛒</div>
+
+<div id="cart-panel">
+  <h2>Carrito</h2>
+  <ul id="cart-items"></ul>
+  <p><strong>Total: $<span id="total">0</span></strong></p>
+  <div class="payment">
+    <label for="payment-method">Método de pago:</label>
+    <select id="payment-method" onchange="showPaymentFields()">
+      <option value="card">Tarjeta de crédito</option>
+      <option value="paypal">PayPal</option>
+      <option value="transfer">Transferencia</option>
+    </select>
+    <div id="payment-fields"></div>
+    <button onclick="checkout()">Pagar</button>
+  </div>
+</div>
+
+<div class="main-container">
+  <section class="products">
+    <h2>Productos</h2>
+    <div class="product" data-id="1">
+      <img src="https://via.placeholder.com/300x180?text=Sabritas">
+      <h3>Sabritas</h3>
+      <p>Precio: $20</p>
+      <button onclick="addToCart(1)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-id="2">
+      <img src="https://via.placeholder.com/300x180?text=Leche">
+      <h3>Leche</h3>
+      <p>Precio: $50</p>
+      <button onclick="addToCart(2)">Agregar al carrito</button>
+    </div>
+    <div class="product" data-id="3">
+      <img src="https://via.placeholder.com/300x180?text=Refresco">
+      <h3>Refresco</h3>
+      <p>Precio: $30</p>
+      <button onclick="addToCart(3)">Agregar al carrito</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  const products = {
+    1: { name: "Sabritas", price: 20 },
+    2: { name: "Leche", price: 50 },
+    3: { name: "Refresco", price: 30 }
+  };
+  const cart = {};
+
+  function toggleCartPanel() {
+    document.getElementById("cart-panel").classList.toggle("open");
+  }
+
+  function addToCart(id) {
+    if (!cart[id]) cart[id] = 0;
+    cart[id]++;
+    renderCart();
+    animateCartPanel();
+    animateProductButton(id);
+  }
+
+  function removeFromCart(id) {
+    if (cart[id]) {
+      cart[id]--;
+      if (cart[id] <= 0) delete cart[id];
+      renderCart();
+    }
+  }
+
+  function renderCart() {
+    const cartItems = document.getElementById("cart-items");
+    cartItems.innerHTML = "";
+    let total = 0;
+    for (const id in cart) {
+      const item = products[id];
+      const quantity = cart[id];
+      total += item.price * quantity;
+      const li = document.createElement("li");
+      li.innerHTML = `${item.name} x ${quantity} = $${item.price * quantity} 
+        <button onclick="removeFromCart(${id})">Quitar</button>`;
+      cartItems.appendChild(li);
+    }
+    document.getElementById("total").textContent = total;
+  }
+
+  function animateCartPanel() {
+    const panel = document.getElementById("cart-panel");
+    panel.classList.remove("cart-animation");
+    void panel.offsetWidth;
+    panel.classList.add("cart-animation");
+  }
+
+  function animateProductButton(id) {
+    const btn = document.querySelector(`.product[data-id="${id}"] button`);
+    btn.classList.remove("added-animation");
+    void btn.offsetWidth;
+    btn.classList.add("added-animation");
+  }
+
+  function showPaymentFields() {
+    const method = document.getElementById("payment-method").value;
+    const container = document.getElementById("payment-fields");
+    container.innerHTML = "";
+
+    if (method === "card") {
+      container.innerHTML = `
+        <input type="text" placeholder="Número de tarjeta" required><br>
+        <input type="text" placeholder="Fecha de expiración (MM/AA)" required><br>
+        <input type="text" placeholder="CVV" required><br>
+      `;
+    } else if (method === "paypal") {
+      container.innerHTML = `
+        <input type="email" placeholder="Correo de PayPal" required><br>
+      `;
+    }
+  }
+
+  function checkout() {
+    const method = document.getElementById("payment-method").value;
+    if (Object.keys(cart).length === 0) {
+      alert("Tu carrito está vacío.");
+      return;
+    }
+    alert("Procesando pago con " + method.toUpperCase() + "...
+(Simulación)");
+  }
+
+  window.onload = showPaymentFields;
+</script>
+
+</body>
+</html>
